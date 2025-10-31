@@ -32,4 +32,11 @@ a,
     grid-template-columns: 1fr 1fr;
     padding: 0 2rem;
   }
+  html, body, #app {
+    height: 100%;
+    margin: 0;
+    background: #0b1220;   /* 🌙 dark navy blue */
+    color: #e5e7eb;        /* light gray text */
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
 }
