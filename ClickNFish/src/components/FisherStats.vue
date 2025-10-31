@@ -69,7 +69,7 @@ const statEntries = [
 .key { opacity:.75; }
 .val { font-weight:600; }
 .upgrades ul { list-style:none; padding:0; margin:.25rem 0 0; display:grid; gap:.3rem; }
-.upgrade { padding:.4rem .6rem; background:##0b1220; border:1px solid #eee; border-radius:.4rem; }
+.upgrade { padding:.4rem .6rem; background:#0b1220; border:1px solid #eee; border-radius:.4rem; }
 .desc { opacity:.8; font-size:.9rem; }
 .empty { opacity:.7; font-style:italic; }
 </style>
