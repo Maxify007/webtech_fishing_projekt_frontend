@@ -11,5 +11,4 @@
 
 <style scoped>
 .nav { display:flex; gap:1rem; padding:1rem; }
-.nav a.router-link-active { font-weight:700; text-decoration:underline; }
 </style>

@@ -15,7 +15,7 @@ type Fisher = {
 
 const props = defineProps<{ fisher: Fisher }>()
 
-// Schlüssel-Werte für v-for (Stats)
+
 const statEntries = [
   { key: 'fishAmount', label: 'Fische gesamt', value: props.fisher.fishAmount },
   { key: 'fishPerPull', label: 'Fische pro Klick', value: props.fisher.fishPerPull },
@@ -36,7 +36,7 @@ const statEntries = [
       </div>
     </header>
 
-    <!-- v-for #1: Stat-Paare -->
+
     <ul class="stats">
       <li v-for="s in statEntries" :key="s.key" class="row">
         <span class="key">{{ s.label }}</span>
@@ -44,7 +44,7 @@ const statEntries = [
       </li>
     </ul>
 
-    <!-- v-for #2: Upgrades -->
+
     <div v-if="fisher.upgrades?.length" class="upgrades">
       <h3>Upgrades ({{ fisher.upgrades.length }})</h3>
       <ul>
