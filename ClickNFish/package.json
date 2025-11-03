@@ -19,10 +19,13 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "pinia": "^3.0.3",
     "vue": "^3.5.22",
     "vue-router": "^4.5.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.25.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.25.0",
     "@prettier/plugin-oxc": "^0.0.4",
     "@tsconfig/node22": "^22.0.2",
     "@types/jsdom": "^21.1.7",
@@ -34,8 +37,6 @@
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.8.1",
     "babel": "^5.8.38",
-    "@babel/core": "^7.25.0",
-    "@babel/plugin-transform-modules-commonjs": "^7.25.0",
     "babel-jest": "^30.2.0",
     "eslint": "^9.33.0",
     "eslint-plugin-oxlint": "~1.11.0",

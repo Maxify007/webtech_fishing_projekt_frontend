@@ -1,30 +1,20 @@
 <!-- src/components/Game.vue -->
 <script setup lang="ts">
-import { ref } from 'vue'
-
-const fishCount = ref(0)
-const fishClickValue = ref(1)
-const upgradeCost = ref(10)
+import { useGameStore } from '@/stores/game'
+const game = useGameStore()
 
 function fishClick() {
-  fishCount.value += fishClickValue.value
+  game.clickFish()
 }
-
 function buyClickUpgrade() {
-  if (fishCount.value >= upgradeCost.value) {
-    fishCount.value -= upgradeCost.value
-    fishClickValue.value *= 2
-    upgradeCost.value *= 2
-  } else {
-    alert('Nicht genug Fische!')
-  }
+  game.buyClickUpgrade()
 }
 </script>
 
 <template>
   <header>
     <h1>Klick den Fish 🐟</h1>
-    <h2>Fische: {{ fishCount }}</h2>
+    <h2>Fische: {{ game.fishCount }}</h2>
 
     <img
       alt="Fish"
@@ -36,8 +26,8 @@ function buyClickUpgrade() {
     />
 
     <div class="upgrade-area">
-      <button class="upgrade-btn" @click="buyClickUpgrade" :disabled="fishCount < upgradeCost">
-        🔼 Upgrade kaufen (x2/Klick, kostet {{ upgradeCost }} 🐟)
+      <button class="upgrade-btn" @click="buyClickUpgrade" :disabled="game.fishCount < game.upgradeCost">
+        🔼 Upgrade kaufen (x2/Klick, kostet {{ game.upgradeCost }} 🐟)
       </button>
     </div>
   </header>

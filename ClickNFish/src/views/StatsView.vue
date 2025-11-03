@@ -1,43 +1,29 @@
 <!-- src/views/StatsView.vue -->
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useGameStore } from '@/stores/game'
+import FisherStats from '@/components/FisherStats.vue'
+
+const game = useGameStore()
+
+const fisher = computed(() => ({
+  id: 1,
+  name: 'Cap’n Nemo',
+  fishAmount: game.fishCount,       // 👈 identisch mit Game
+  upgrades: [],
+  luckRate: 0,
+  luckMultiplier: 1.0,
+  fishSpeedMultiplier: 1,
+  fishPerPull: game.fishClickValue, // optional live anzeigen
+  masteryScore: 0,
+}))
+</script>
+
 <template>
   <main class="page">
     <FisherStats :fisher="fisher" />
   </main>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue'
-import FisherStats from '@/components/FisherStats.vue'
-
-type Upgrade = { id: number|string; name: string; level?: number; description?: string }
-type Fisher = {
-  id: number
-  name: string
-  fishAmount: number
-  upgrades: Upgrade[]
-  luckRate: number
-  luckMultiplier: number
-  fishSpeedMultiplier: number
-  fishPerPull: number
-  masteryScore: number
-}
-
-// Dummy-Daten für die Anzeige (später durch API ersetzen)
-const fisher = ref<Fisher>({
-  id: 1,
-  name: 'Cap’n Nemo',
-  fishAmount: 123,
-  upgrades: [
-    { id: 'rod', name: 'Holzrute', level: 2, description: '+1/Klick' },
-    { id: 'net', name: 'Kleines Netz', level: 1, description: '+0.2/s' }
-  ],
-  luckRate: 5,
-  luckMultiplier: 2.0,
-  fishSpeedMultiplier: 1,
-  fishPerPull: 3,
-  masteryScore: 42
-})
-</script>
 
 <style scoped>
 .page {
