@@ -2,6 +2,7 @@
 import { computed, onMounted } from "vue";
 import { useFisherStore } from "@/stores/fisherStore";
 import type { Fisher, UpgradeType } from "@/types";
+import router from '@/router'
 
 const props = defineProps<{ fisherId: number }>();
 const store = useFisherStore();
@@ -49,6 +50,12 @@ async function buy(type: UpgradeType) {
         🎣 Fish!
       </button>
 
+      <button
+        @click="router.push(`/`)"
+        style="padding:12px 18px;font-size:18px;border-radius:10px;border:none;background:#22c55e;color:white;"
+        >
+        Back
+      </button>
       <h2 style="margin-top:20px;">Stats</h2>
       <ul>
         <li>Base Pull: {{ fisher.baseFishPull }}</li>
