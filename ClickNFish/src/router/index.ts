@@ -1,15 +1,15 @@
-// src/router/index.ts
-import { createRouter, createWebHistory } from 'vue-router'
-import Game from '@/components/Game.vue'
-import StatsView from '@/views/StatsView.vue'
+import { createRouter, createWebHistory } from "vue-router";
+import ChooseFisherView from "@/views/ChooseFisherView.vue";
+import GameView from "@/views/GameView.vue";
 
-const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+export default createRouter({
+  history: createWebHistory(),
   routes: [
-    { path: '/', redirect: '/game' },              // <-- Umleitung
-    { path: '/game', name: 'game', component: Game },
-    { path: '/stats', name: 'stats', component: StatsView }
+    { path: "/", component: ChooseFisherView },
+    {
+      path: "/game/:fisherId",
+      component: GameView,
+      props: route => ({ fisherId: Number(route.params.fisherId) })
+    }
   ]
-})
-
-export default router
+});
