@@ -46,6 +46,7 @@ async function buy(type: UpgradeType) {
       <button
         @click="store.click()"
         style="padding:12px 18px;font-size:18px;border-radius:10px;border:none;background:#22c55e;color:white;"
+
       >
         🎣 Fish!
       </button>
