@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed, onMounted, onUnmounted } from "vue";
 import { useFisherStore } from "@/stores/fisherStore";
 import type { Fisher, UpgradeType } from "@/types";
 import router from '@/router'
@@ -7,9 +7,17 @@ import router from '@/router'
 const props = defineProps<{ fisherId: number }>();
 const store = useFisherStore();
 
+let passiveInterval: number | undefined;
+
 onMounted(async () => {
   await store.loadFisher(props.fisherId);
+
+  // ➤ Passive Tick alle 1 Sekunde
+  passiveInterval = setInterval(async () => {
+    await store.passiveTick();   // wir schreiben diese Methode gleich in den Store
+  }, 1000);
 });
+
 
 const fisher = computed(() => store.activeFisher as Fisher | null);
 
@@ -39,6 +47,11 @@ const progressPercent = computed(() => {
   const max = 10; // based on backend logic
   return Math.min(100, Math.max(0, (p / max) * 100));
 });
+
+onUnmounted(() => {
+  if (passiveInterval) clearInterval(passiveInterval);
+});
+
 
 </script>
 
