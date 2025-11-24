@@ -59,17 +59,15 @@ export const useFisherStore = defineStore("fisher", {
       if (!this.activeFisher) return;
       this.activeFisher = await api.click(this.activeFisher.fisherId);
     },
+
     async passiveTick() {
       try {
         const res = await fetch(`/api/game/${this.activeFisher?.fisherId}/passive`, {
           method: "POST",
         });
-
         if (!res.ok) throw new Error("Passive tick failed");
-
         const data = await res.json();
         this.activeFisher = data;
-
       } catch (err: unknown) {
         if (err instanceof Error) {
           this.error = err.message;

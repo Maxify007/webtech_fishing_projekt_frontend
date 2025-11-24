@@ -14,7 +14,7 @@ onMounted(async () => {
 
   // ➤ Passive Tick alle 1 Sekunde
   passiveInterval = setInterval(async () => {
-    await store.passiveTick();   // wir schreiben diese Methode gleich in den Store
+    await store.passiveTick();
   }, 1000);
 });
 
