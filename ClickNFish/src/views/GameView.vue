@@ -32,7 +32,9 @@ function levelOf(type: UpgradeType): number {
 
 async function buy(type: UpgradeType) {
   await store.buyUpgrade(type);
+  await store.loadFisher(props.fisherId); // refresh levels + stats
 }
+
 </script>
 
 <template>

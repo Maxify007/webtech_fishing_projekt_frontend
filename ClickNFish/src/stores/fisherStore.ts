@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import * as api from "@/services/api";
 import type { Fisher, UpgradeType } from "@/types";
+import axios from 'axios'
 
 interface FisherState {
   playerId: number;
@@ -32,6 +33,7 @@ export const useFisherStore = defineStore("fisher", {
       }
     },
 
+
     async createFisher(name: string) {
       this.error = null;
       const fisher = await api.createFisher(this.playerId, name);
@@ -60,10 +62,29 @@ export const useFisherStore = defineStore("fisher", {
 
     async buyUpgrade(type: UpgradeType) {
       if (!this.activeFisher) return;
-      this.activeFisher = await api.buyUpgrade(
-        this.activeFisher.fisherId,
-        type
-      );
+
+      this.error = null;
+
+      try {
+        this.activeFisher = await api.buyUpgrade(
+          this.activeFisher.fisherId,
+          type
+        );
+      } catch (e: unknown) {
+        if (axios.isAxiosError(e)) {
+          this.error =
+            (e.response?.data as { message?: string } | undefined)?.message ??
+            e.message ??
+            "Upgrade failed";
+        } else if (e instanceof Error) {
+          this.error = e.message;
+        } else {
+          this.error = "Upgrade failed";
+        }
+
+        throw e;
+      }
     },
+
   },
 });
