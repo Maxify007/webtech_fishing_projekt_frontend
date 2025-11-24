@@ -34,6 +34,11 @@ async function buy(type: UpgradeType) {
   await store.buyUpgrade(type);
   await store.loadFisher(props.fisherId); // refresh levels + stats
 }
+const progressPercent = computed(() => {
+  const p = fisher.value?.fishProgress ?? 0;
+  const max = 10; // based on backend logic
+  return Math.min(100, Math.max(0, (p / max) * 100));
+});
 
 </script>
 
@@ -48,10 +53,27 @@ async function buy(type: UpgradeType) {
       <button
         @click="store.click()"
         style="padding:12px 18px;font-size:18px;border-radius:10px;border:none;background:#22c55e;color:white;"
-
       >
         🎣 Fish!
       </button>
+
+      <!-- Progress bar -->
+      <div style="margin-top:10px;">
+        <div style="font-size:14px;margin-bottom:4px;">
+          Progress: {{ fisher.fishProgress }}/10
+        </div>
+        <div style="height:12px;background:#e2e8f0;border-radius:999px;overflow:hidden;">
+          <div
+            :style="{
+        width: progressPercent + '%',
+        height: '100%',
+        background: '#22c55e',
+        transition: 'width 0.2s ease'
+      }"
+          />
+        </div>
+      </div>
+
 
       <button
         @click="router.push(`/`)"
