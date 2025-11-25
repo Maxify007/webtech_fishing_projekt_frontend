@@ -6,6 +6,7 @@ import router from "@/router";
 
 const props = defineProps<{ fisherId: number }>();
 const store = useFisherStore();
+const timeNow = ref(Date.now());
 
 const fisher = computed(() => store.activeFisher as Fisher | null);
 const isInitialLoading = ref(true);
@@ -56,11 +57,12 @@ const autoProgress = computed(() => {
   }
   const tickDuration = f.passiveFishSpeedMultiplier;
   const last = f.lastPassiveTickMillis;
-  const now = Date.now();
-  const elapsed = now - last;
+  const elapsed = timeNow.value - last;   // ✅ reactive
   const ratio = Math.max(0, Math.min(1, elapsed / tickDuration));
   return ratio * 100;
 });
+
+
 
 let timerInterval: number | null = null;
 
@@ -102,11 +104,12 @@ function startTimer() {
   stopTimer();
   updateCountdownOnly();
 
-  // run every second, but only call backend when needed
   timerInterval = window.setInterval(() => {
-    void checkAndDoPassiveTick();
+    timeNow.value = Date.now();      // ✅ force recompute every second
+    void checkAndDoPassiveTick();    // ✅ only hits backend when needed
   }, 1000);
 }
+
 
 function stopTimer() {
   if (timerInterval !== null) {

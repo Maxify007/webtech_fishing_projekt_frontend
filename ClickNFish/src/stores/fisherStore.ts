@@ -66,7 +66,12 @@ export const useFisherStore = defineStore("fisher", {
       this.error = null;
 
       try {
-        this.activeFisher = await api.passiveTick(this.activeFisher.fisherId);
+        const updated = await api.passiveTick(this.activeFisher.fisherId);
+
+        // Only overwrite if we actually got a valid object back
+        if (updated && typeof updated.fisherId === "number") {
+          this.activeFisher = updated;
+        }
       } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
           this.error =
@@ -78,6 +83,7 @@ export const useFisherStore = defineStore("fisher", {
         } else {
           this.error = "Passive tick failed";
         }
+        // IMPORTANT: do NOT clear activeFisher on error
       }
     },
 
