@@ -8,6 +8,7 @@ const props = defineProps<{ fisherId: number }>();
 const store = useFisherStore();
 
 const fisher = computed(() => store.activeFisher as Fisher | null);
+const isInitialLoading = ref(true);
 
 const fmt = (n: unknown, digits = 2) =>
   typeof n === "number" && Number.isFinite(n) ? n.toFixed(digits) : "0.00";
@@ -28,10 +29,9 @@ function levelOf(type: UpgradeType): number {
 
 async function buy(type: UpgradeType) {
   await store.buyUpgrade(type);
-  await store.loadFisher(props.fisherId); // refresh levels + stats
+  // no need to reload from backend; buyUpgrade already updates activeFisher
 }
 
-// manual click progress bar (already had this)
 const progressPercent = computed(() => {
   const p = fisher.value?.fishProgress ?? 0;
   const max = 10;
@@ -39,11 +39,9 @@ const progressPercent = computed(() => {
 });
 
 /**
- * === AUTO FISH / PASSIVE TIMER ===
- * We use passiveFishSpeedMultiplier as tick duration in ms,
- * and lastPassiveTickMillis from backend to estimate time to next tick.
+ * AUTO-FISH TIMER
+ * We only trigger a passive tick once enough time has passed.
  */
-
 const nextAutoMs = ref<number | null>(null);
 
 const nextAutoSeconds = computed(() => {
@@ -60,14 +58,13 @@ const autoProgress = computed(() => {
   const last = f.lastPassiveTickMillis;
   const now = Date.now();
   const elapsed = now - last;
-  const ratio = Math.max(0, Math.min(1, (elapsed % tickDuration) / tickDuration));
+  const ratio = Math.max(0, Math.min(1, elapsed / tickDuration));
   return ratio * 100;
 });
 
-let countdownInterval: number | null = null;
-let passiveInterval: number | null = null;
+let timerInterval: number | null = null;
 
-function updateCountdown() {
+function updateCountdownOnly() {
   const f = fisher.value;
   if (!f || !f.passiveFishSpeedMultiplier || !f.lastPassiveTickMillis) {
     nextAutoMs.value = null;
@@ -77,49 +74,65 @@ function updateCountdown() {
   const last = f.lastPassiveTickMillis;
   const now = Date.now();
   const elapsed = now - last;
-  const remaining = tickDuration - (elapsed % tickDuration);
+  const remaining = tickDuration - Math.max(0, Math.min(tickDuration, elapsed));
   nextAutoMs.value = Math.max(0, Math.round(remaining));
 }
 
-function startTimers() {
-  stopTimers();
-  updateCountdown();
+async function checkAndDoPassiveTick() {
+  const f = fisher.value;
+  if (!f || !f.passiveFishSpeedMultiplier || !f.lastPassiveTickMillis) {
+    updateCountdownOnly();
+    return;
+  }
 
-  // visual countdown every second
-  countdownInterval = window.setInterval(updateCountdown, 1000);
+  const tickDuration = f.passiveFishSpeedMultiplier;
+  const last = f.lastPassiveTickMillis;
+  const now = Date.now();
+  const elapsed = now - last;
 
-  // call backend passiveTick regularly (e.g. every second)
-  passiveInterval = window.setInterval(async () => {
-    if (!fisher.value) return;
+  // Only call backend if at least one full tick should have happened
+  if (elapsed >= tickDuration) {
     await store.passiveTick();
-    updateCountdown();
+  }
+
+  updateCountdownOnly();
+}
+
+function startTimer() {
+  stopTimer();
+  updateCountdownOnly();
+
+  // run every second, but only call backend when needed
+  timerInterval = window.setInterval(() => {
+    void checkAndDoPassiveTick();
   }, 1000);
 }
 
-function stopTimers() {
-  if (countdownInterval !== null) {
-    clearInterval(countdownInterval);
-    countdownInterval = null;
-  }
-  if (passiveInterval !== null) {
-    clearInterval(passiveInterval);
-    passiveInterval = null;
+function stopTimer() {
+  if (timerInterval !== null) {
+    clearInterval(timerInterval);
+    timerInterval = null;
   }
 }
 
 onMounted(async () => {
   await store.loadFisher(props.fisherId);
-  startTimers();
+  isInitialLoading.value = false;
+  startTimer();
 });
 
 onUnmounted(() => {
-  stopTimers();
+  stopTimer();
 });
 </script>
 
 <template>
   <main style="max-width:900px;margin:0 auto;padding:24px;">
-    <div v-if="!fisher">Loading Fisher...</div>
+    <div v-if="isInitialLoading">Loading Fisher...</div>
+
+    <div v-else-if="!fisher">
+      Failed to load Fisher.
+    </div>
 
     <div v-else>
       <h1>{{ fisher.name }}</h1>
