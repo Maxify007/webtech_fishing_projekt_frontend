@@ -40,3 +40,7 @@ export async function buyUpgrade(
   );
   return data;
 }
+export async function passiveTick(fisherId: number): Promise<Fisher> {
+  const { data } = await http.post<Fisher>(`/game/${fisherId}/passive`);
+  return data;
+}

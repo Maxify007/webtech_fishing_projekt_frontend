@@ -1,23 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useFisherStore } from "@/stores/fisherStore";
 import type { Fisher, UpgradeType } from "@/types";
-import router from '@/router'
+import router from "@/router";
 
 const props = defineProps<{ fisherId: number }>();
 const store = useFisherStore();
-
-let passiveInterval: number | undefined;
-
-onMounted(async () => {
-  await store.loadFisher(props.fisherId);
-
-  // ➤ Passive Tick alle 1 Sekunde
-  passiveInterval = setInterval(async () => {
-    await store.passiveTick();
-  }, 1000);
-});
-
 
 const fisher = computed(() => store.activeFisher as Fisher | null);
 
@@ -42,17 +30,91 @@ async function buy(type: UpgradeType) {
   await store.buyUpgrade(type);
   await store.loadFisher(props.fisherId); // refresh levels + stats
 }
+
+// manual click progress bar (already had this)
 const progressPercent = computed(() => {
   const p = fisher.value?.fishProgress ?? 0;
-  const max = 10; // based on backend logic
+  const max = 10;
   return Math.min(100, Math.max(0, (p / max) * 100));
 });
 
-onUnmounted(() => {
-  if (passiveInterval) clearInterval(passiveInterval);
+/**
+ * === AUTO FISH / PASSIVE TIMER ===
+ * We use passiveFishSpeedMultiplier as tick duration in ms,
+ * and lastPassiveTickMillis from backend to estimate time to next tick.
+ */
+
+const nextAutoMs = ref<number | null>(null);
+
+const nextAutoSeconds = computed(() => {
+  if (nextAutoMs.value == null) return null;
+  return Math.ceil(nextAutoMs.value / 1000);
 });
 
+const autoProgress = computed(() => {
+  const f = fisher.value;
+  if (!f || !f.passiveFishSpeedMultiplier || !f.lastPassiveTickMillis) {
+    return 0;
+  }
+  const tickDuration = f.passiveFishSpeedMultiplier;
+  const last = f.lastPassiveTickMillis;
+  const now = Date.now();
+  const elapsed = now - last;
+  const ratio = Math.max(0, Math.min(1, (elapsed % tickDuration) / tickDuration));
+  return ratio * 100;
+});
 
+let countdownInterval: number | null = null;
+let passiveInterval: number | null = null;
+
+function updateCountdown() {
+  const f = fisher.value;
+  if (!f || !f.passiveFishSpeedMultiplier || !f.lastPassiveTickMillis) {
+    nextAutoMs.value = null;
+    return;
+  }
+  const tickDuration = f.passiveFishSpeedMultiplier;
+  const last = f.lastPassiveTickMillis;
+  const now = Date.now();
+  const elapsed = now - last;
+  const remaining = tickDuration - (elapsed % tickDuration);
+  nextAutoMs.value = Math.max(0, Math.round(remaining));
+}
+
+function startTimers() {
+  stopTimers();
+  updateCountdown();
+
+  // visual countdown every second
+  countdownInterval = window.setInterval(updateCountdown, 1000);
+
+  // call backend passiveTick regularly (e.g. every second)
+  passiveInterval = window.setInterval(async () => {
+    if (!fisher.value) return;
+    await store.passiveTick();
+    updateCountdown();
+  }, 1000);
+}
+
+function stopTimers() {
+  if (countdownInterval !== null) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
+  if (passiveInterval !== null) {
+    clearInterval(passiveInterval);
+    passiveInterval = null;
+  }
+}
+
+onMounted(async () => {
+  await store.loadFisher(props.fisherId);
+  startTimers();
+});
+
+onUnmounted(() => {
+  stopTimers();
+});
 </script>
 
 <template>
@@ -70,30 +132,53 @@ onUnmounted(() => {
         🎣 Fish!
       </button>
 
-      <!-- Progress bar -->
+      <!-- Manual click progress bar -->
       <div style="margin-top:10px;">
         <div style="font-size:14px;margin-bottom:4px;">
           Progress: {{ fisher.fishProgress }}/10
         </div>
-        <div style="height:12px;background:#e2e8f0;border-radius:999px;overflow:hidden;">
+        <div
+          style="height:12px;background:#e2e8f0;border-radius:999px;overflow:hidden;"
+        >
           <div
             :style="{
-        width: progressPercent + '%',
-        height: '100%',
-        background: '#22c55e',
-        transition: 'width 0.2s ease'
-      }"
+              width: progressPercent + '%',
+              height: '100%',
+              background: '#22c55e',
+              transition: 'width 0.2s ease'
+            }"
           />
         </div>
       </div>
 
+      <!-- Auto-fish timer + bar -->
+      <div style="margin-top:16px;">
+        <div style="font-size:14px;margin-bottom:4px;">
+          Next auto fish in:
+          <span v-if="nextAutoSeconds !== null">{{ nextAutoSeconds }}s</span>
+          <span v-else>–</span>
+        </div>
+        <div
+          style="height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden;"
+        >
+          <div
+            :style="{
+              width: autoProgress + '%',
+              height: '100%',
+              background: '#3b82f6',
+              transition: 'width 0.2s linear'
+            }"
+          />
+        </div>
+      </div>
 
       <button
         @click="router.push(`/`)"
-        style="padding:12px 18px;font-size:18px;border-radius:10px;border:none;background:#22c55e;color:white;"
-        >
+        style="margin-top:16px;padding:12px 18px;font-size:18px;border-radius:10px;border:none;background:#22c55e;color:white;"
+      >
         Back
       </button>
+
       <h2 style="margin-top:20px;">Stats</h2>
       <ul>
         <li>Base Pull: {{ fisher.baseFishPull }}</li>
@@ -105,7 +190,9 @@ onUnmounted(() => {
       </ul>
 
       <h2 style="margin-top:20px;">Upgrades</h2>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;">
+      <div
+        style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;"
+      >
         <button
           v-for="u in upgradeButtons"
           :key="u.type"
