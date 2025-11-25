@@ -6,6 +6,8 @@ import router from "@/router";
 
 const props = defineProps<{ fisherId: number }>();
 const store = useFisherStore();
+
+// reactive "now" for the auto bar
 const timeNow = ref(Date.now());
 
 const fisher = computed(() => store.activeFisher as Fisher | null);
@@ -28,9 +30,21 @@ function levelOf(type: UpgradeType): number {
   return up?.level ?? 0;
 }
 
+// mirror backend cost formula
+function costOf(type: UpgradeType): number {
+  const f = fisher.value;
+  if (!f) return 0;
+
+  const up = f.upgrades?.find((u) => u.type === type);
+  const level = up?.level ?? 1; // backend starts at level 1
+
+  const rounded = Math.round(Math.pow(1.15, level));
+  return 10 * rounded;
+}
+
 async function buy(type: UpgradeType) {
   await store.buyUpgrade(type);
-  // no need to reload from backend; buyUpgrade already updates activeFisher
+  // store.buyUpgrade already updates activeFisher
 }
 
 const progressPercent = computed(() => {
@@ -41,7 +55,6 @@ const progressPercent = computed(() => {
 
 /**
  * AUTO-FISH TIMER
- * We only trigger a passive tick once enough time has passed.
  */
 const nextAutoMs = ref<number | null>(null);
 
@@ -50,6 +63,7 @@ const nextAutoSeconds = computed(() => {
   return Math.ceil(nextAutoMs.value / 1000);
 });
 
+// progress of current passive tick [0–100]
 const autoProgress = computed(() => {
   const f = fisher.value;
   if (!f || !f.passiveFishSpeedMultiplier || !f.lastPassiveTickMillis) {
@@ -57,12 +71,10 @@ const autoProgress = computed(() => {
   }
   const tickDuration = f.passiveFishSpeedMultiplier;
   const last = f.lastPassiveTickMillis;
-  const elapsed = timeNow.value - last;   // ✅ reactive
+  const elapsed = timeNow.value - last;
   const ratio = Math.max(0, Math.min(1, elapsed / tickDuration));
   return ratio * 100;
 });
-
-
 
 let timerInterval: number | null = null;
 
@@ -76,7 +88,8 @@ function updateCountdownOnly() {
   const last = f.lastPassiveTickMillis;
   const now = Date.now();
   const elapsed = now - last;
-  const remaining = tickDuration - Math.max(0, Math.min(tickDuration, elapsed));
+  const clamped = Math.max(0, Math.min(tickDuration, elapsed));
+  const remaining = tickDuration - clamped;
   nextAutoMs.value = Math.max(0, Math.round(remaining));
 }
 
@@ -92,7 +105,7 @@ async function checkAndDoPassiveTick() {
   const now = Date.now();
   const elapsed = now - last;
 
-  // Only call backend if at least one full tick should have happened
+  // Only call backend if at least one full tick has passed
   if (elapsed >= tickDuration) {
     await store.passiveTick();
   }
@@ -105,11 +118,10 @@ function startTimer() {
   updateCountdownOnly();
 
   timerInterval = window.setInterval(() => {
-    timeNow.value = Date.now();      // ✅ force recompute every second
-    void checkAndDoPassiveTick();    // ✅ only hits backend when needed
+    timeNow.value = Date.now();   // makes autoProgress move
+    void checkAndDoPassiveTick();
   }, 1000);
 }
-
 
 function stopTimer() {
   if (timerInterval !== null) {
@@ -207,15 +219,29 @@ onUnmounted(() => {
 
       <h2 style="margin-top:20px;">Upgrades</h2>
       <div
-        style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;"
+        style="
+          display:grid;
+          grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+          gap:10px;
+        "
       >
         <button
           v-for="u in upgradeButtons"
           :key="u.type"
           @click="buy(u.type)"
-          style="padding:10px;border-radius:8px;border:1px solid #cbd5e1;background:white;"
+          :disabled="fisher.fishAmount < costOf(u.type)"
+          :style="{
+            padding: '10px',
+            borderRadius: '8px',
+            border: '1px solid #cbd5e1',
+            background: 'white',
+            opacity: fisher.fishAmount < costOf(u.type) ? 0.6 : 1,
+            cursor: fisher.fishAmount < costOf(u.type) ? 'not-allowed' : 'pointer'
+          }"
         >
-          {{ u.label }} (Lv {{ levelOf(u.type) }})
+          {{ u.label }}
+          (Lv {{ levelOf(u.type) }})
+          – {{ costOf(u.type) }} Fish
         </button>
       </div>
 
