@@ -1,7 +1,16 @@
 import { defineStore } from "pinia";
 import * as api from "@/services/api";
 import type { Fisher, UpgradeType } from "@/types";
-import axios from 'axios'
+import axios from "axios";
+
+function getOrCreatePlayerId(): number {
+  const stored = localStorage.getItem("playerId");
+  if (stored) return Number(stored);
+
+  const newId = Date.now(); // simple unique ID per device
+  localStorage.setItem("playerId", String(newId));
+  return newId;
+}
 
 interface FisherState {
   playerId: number;
@@ -13,7 +22,7 @@ interface FisherState {
 
 export const useFisherStore = defineStore("fisher", {
   state: (): FisherState => ({
-    playerId: 1,
+    playerId: getOrCreatePlayerId(), // ← HERE
     fishers: [],
     activeFisher: null,
     loading: false,
@@ -32,7 +41,6 @@ export const useFisherStore = defineStore("fisher", {
         this.loading = false;
       }
     },
-
 
     async createFisher(name: string) {
       this.error = null;
@@ -68,7 +76,6 @@ export const useFisherStore = defineStore("fisher", {
       try {
         const updated = await api.passiveTick(this.activeFisher.fisherId);
 
-        // Only overwrite if we actually got a valid object back
         if (updated && typeof updated.fisherId === "number") {
           this.activeFisher = updated;
         }
@@ -83,11 +90,8 @@ export const useFisherStore = defineStore("fisher", {
         } else {
           this.error = "Passive tick failed";
         }
-        // IMPORTANT: do NOT clear activeFisher on error
       }
     },
-
-
 
     async buyUpgrade(type: UpgradeType) {
       if (!this.activeFisher) return;
@@ -114,6 +118,5 @@ export const useFisherStore = defineStore("fisher", {
         throw e;
       }
     },
-
   },
 });
