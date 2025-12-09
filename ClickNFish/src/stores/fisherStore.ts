@@ -7,10 +7,14 @@ function getOrCreatePlayerId(): number {
   const stored = localStorage.getItem("playerId");
   if (stored) return Number(stored);
 
-  const newId = Date.now(); // simple unique ID per device
+  // Generate a random ID between 1 and 1,000,000,000 (well below 2,147,483,647)
+  const max = 1_000_000_000;
+  const newId = Math.floor(Math.random() * (max - 1)) + 1;
+
   localStorage.setItem("playerId", String(newId));
   return newId;
 }
+
 
 interface FisherState {
   playerId: number;
