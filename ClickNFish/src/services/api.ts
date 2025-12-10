@@ -30,7 +30,15 @@ export async function click(fisherId: number): Promise<Fisher> {
   const { data } = await http.post<Fisher>(`/game/${fisherId}/click`);
   return data;
 }
-
+export async function getLeaderboard(): Promise<Fisher[]> {
+  const { data } = await http.get<Fisher[]>("/leaderboard");
+  return data;
+}
+export async function deleteFisher(fisherId: number, playerId: number): Promise<void> {
+  await http.delete(`/fishers/${fisherId}`, {
+    params: { playerId }
+  });
+}
 export async function buyUpgrade(
   fisherId: number,
   type: UpgradeType

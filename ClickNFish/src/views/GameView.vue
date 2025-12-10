@@ -7,7 +7,6 @@ import router from "@/router";
 const props = defineProps<{ fisherId: number }>();
 const store = useFisherStore();
 
-// reactive "now" for the auto bar
 const timeNow = ref(Date.now());
 
 const fisher = computed(() => store.activeFisher as Fisher | null);
@@ -200,12 +199,22 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <button
-        @click="router.push(`/`)"
-        style="margin-top:16px;padding:12px 18px;font-size:18px;border-radius:10px;border:none;background:#22c55e;color:white;"
-      >
-        Back
-      </button>
+      <!-- Navigation buttons -->
+      <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
+        <button
+          @click="router.push(`/`)"
+          style="padding:10px 16px;font-size:16px;border-radius:10px;border:none;background:#22c55e;color:white;"
+        >
+          ⬅ Back
+        </button>
+
+        <button
+          @click="router.push('/leaderboard')"
+          style="padding:10px 16px;font-size:16px;border-radius:10px;border:1px solid #cbd5e1;background:white;"
+        >
+          🏆 Leaderboard
+        </button>
+      </div>
 
       <h2 style="margin-top:20px;">Stats</h2>
       <ul>

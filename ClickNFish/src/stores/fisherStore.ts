@@ -52,7 +52,15 @@ export const useFisherStore = defineStore("fisher", {
       this.fishers.push(fisher);
       return fisher;
     },
-
+    async deleteFisher(fisherId: number) {
+      this.error = null;
+      try {
+        await api.deleteFisher(fisherId, this.playerId);
+        this.fishers = this.fishers.filter(f => f.fisherId !== fisherId);
+      } catch (e: any) {
+        this.error = e?.message ?? "Failed to delete fisher";
+      }
+    },
     async loadFisher(fisherId: number) {
       this.loading = true;
       this.error = null;

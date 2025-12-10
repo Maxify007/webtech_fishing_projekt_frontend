@@ -19,7 +19,7 @@ export interface Fisher {
 
   fishAmount: number;
   baseFishPull: number;
-
+  totalFishAmount: number;
   luckRate: number;
   luckMultiplier: number;
   masteryMultiplier: number;

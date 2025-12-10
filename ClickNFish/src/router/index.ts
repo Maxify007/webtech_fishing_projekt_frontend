@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import ChooseFisherView from "@/views/ChooseFisherView.vue";
 import GameView from "@/views/GameView.vue";
-
+import LeaderboardView from "@/views/LeaderboardView.vue";
 export default createRouter({
   history: createWebHistory(),
   routes: [
@@ -10,6 +10,12 @@ export default createRouter({
       path: "/game/:fisherId",
       component: GameView,
       props: route => ({ fisherId: Number(route.params.fisherId) })
+
+    },
+    {
+      path: "/leaderboard",
+      component: LeaderboardView
     }
+
   ]
 });
