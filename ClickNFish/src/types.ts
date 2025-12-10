@@ -29,5 +29,7 @@ export interface Fisher {
   lastPassiveTickMillis: number;
 
   fishProgress: number;
-  upgrades: Upgrade[];
+
+  // matches backend: Map<UpgradeType, Integer> upgradeLevels;
+  upgradeLevels?: Partial<Record<UpgradeType, number>>;
 }

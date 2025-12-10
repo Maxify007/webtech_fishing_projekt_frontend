@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useFisherStore } from "@/stores/fisherStore";
+import { useRouter } from "vue-router";
 import type { Fisher, UpgradeType } from "@/types";
-import router from "@/router";
+
+const router = useRouter();
 
 const props = defineProps<{ fisherId: number }>();
 const store = useFisherStore();
@@ -24,26 +26,31 @@ const upgradeButtons: { type: UpgradeType; label: string }[] = [
   { type: "PASSIVE_FISH_AMOUNT", label: "Auto Amount" },
 ];
 
+// dynamic level lookup based on backend map
 function levelOf(type: UpgradeType): number {
-  const up = fisher.value?.upgrades?.find((u) => u.type === type);
-  return up?.level ?? 0;
+  const f = fisher.value;
+  if (!f) return 1; // backend starts at 1
+
+  const levels = f.upgradeLevels;
+  if (levels && typeof levels[type] === "number") {
+    return levels[type] as number;
+  }
+
+  // fallback if field missing; prevents "Lv 0"
+  return 1;
 }
 
-// mirror backend cost formula
+// mirror backend cost formula based on CURRENT level
+// mirror backend cost formula based on CURRENT level
 function costOf(type: UpgradeType): number {
-  const f = fisher.value;
-  if (!f) return 0;
-
-  const up = f.upgrades?.find((u) => u.type === type);
-  const level = up?.level ?? 1; // backend starts at level 1
-
-  const rounded = Math.round(Math.pow(1.15, level));
-  return 10 * rounded;
+  const level = levelOf(type);
+  const rounded = Math.round(Math.pow(1.15, level) * 10);
+  return rounded;
 }
 
 async function buy(type: UpgradeType) {
   await store.buyUpgrade(type);
-  // store.buyUpgrade already updates activeFisher
+  // store.buyUpgrade already updates activeFisher from backend response
 }
 
 const progressPercent = computed(() => {
@@ -218,6 +225,7 @@ onUnmounted(() => {
 
       <h2 style="margin-top:20px;">Stats</h2>
       <ul>
+        <li>Total Fish: {{fisher.totalFishAmount}}</li>
         <li>Base Pull: {{ fisher.baseFishPull }}</li>
         <li>Luck Rate: {{ fisher.luckRate ?? 0 }}%</li>
         <li>Luck Multiplier: x{{ fmt(fisher.luckMultiplier) }}</li>
