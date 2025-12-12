@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useFisherStore } from "@/stores/fisherStore";
 import { useRouter } from "vue-router";
 import type { Fisher, UpgradeType } from "@/types";
+import PixelButton from "@/components/PixelButton.vue";
 
 const router = useRouter();
 
@@ -41,7 +42,6 @@ function levelOf(type: UpgradeType): number {
 }
 
 // mirror backend cost formula based on CURRENT level
-// mirror backend cost formula based on CURRENT level
 function costOf(type: UpgradeType): number {
   const level = levelOf(type);
   const rounded = Math.round(Math.pow(1.15, level) * 10);
@@ -50,7 +50,6 @@ function costOf(type: UpgradeType): number {
 
 async function buy(type: UpgradeType) {
   await store.buyUpgrade(type);
-  // store.buyUpgrade already updates activeFisher from backend response
 }
 
 const progressPercent = computed(() => {
@@ -124,7 +123,7 @@ function startTimer() {
   updateCountdownOnly();
 
   timerInterval = window.setInterval(() => {
-    timeNow.value = Date.now();   // makes autoProgress move
+    timeNow.value = Date.now(); // makes autoProgress move
     void checkAndDoPassiveTick();
   }, 1000);
 }
@@ -148,123 +147,172 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <main style="max-width:900px;margin:0 auto;padding:24px;">
-    <div v-if="isInitialLoading">Loading Fisher...</div>
+  <main class="game">
+    <div class="content">
+      <div v-if="isInitialLoading">Loading Fisher...</div>
 
-    <div v-else-if="!fisher">
-      Failed to load Fisher.
-    </div>
+      <div v-else-if="!fisher">Failed to load Fisher.</div>
 
-    <div v-else>
-      <h1>{{ fisher.name }}</h1>
-      <p>Fish: <b>{{ fisher.fishAmount }}</b></p>
+      <div v-else class="panel">
+        <h1 class="title">{{ fisher.name }}</h1>
+        <p class="fish-count">Fish: <b>{{ fisher.fishAmount }}</b></p>
 
-      <button
-        @click="store.click()"
-        style="padding:12px 18px;font-size:18px;border-radius:10px;border:none;background:#22c55e;color:white;"
-      >
-        🎣 Fish!
-      </button>
+        <div class="row">
+          <PixelButton @click="store.click()">🎣 Fish!</PixelButton>
 
-      <!-- Manual click progress bar -->
-      <div style="margin-top:10px;">
-        <div style="font-size:14px;margin-bottom:4px;">
-          Progress: {{ fisher.fishProgress }}/10
+          <div class="nav">
+            <PixelButton @click="router.push(`/`)">⬅ Back</PixelButton>
+            <PixelButton @click="router.push('/leaderboard')">🏆 Leaderboard</PixelButton>
+          </div>
         </div>
-        <div
-          style="height:12px;background:#e2e8f0;border-radius:999px;overflow:hidden;"
-        >
-          <div
-            :style="{
-              width: progressPercent + '%',
-              height: '100%',
-              background: '#22c55e',
-              transition: 'width 0.2s ease'
-            }"
-          />
+
+        <!-- Manual click progress bar -->
+        <div class="section">
+          <div class="section-label">Progress: {{ fisher.fishProgress }}/10</div>
+          <div class="bar">
+            <div class="bar-fill" :style="{ width: progressPercent + '%' }" />
+          </div>
         </div>
-      </div>
 
-      <!-- Auto-fish timer + bar -->
-      <div style="margin-top:16px;">
-        <div style="font-size:14px;margin-bottom:4px;">
-          Next auto fish in:
-          <span v-if="nextAutoSeconds !== null">{{ nextAutoSeconds }}s</span>
-          <span v-else>–</span>
+        <!-- Auto-fish timer + bar -->
+        <div class="section">
+          <div class="section-label">
+            Next auto fish in:
+            <span v-if="nextAutoSeconds !== null">{{ nextAutoSeconds }}s</span>
+            <span v-else>–</span>
+          </div>
+          <div class="bar bar--small">
+            <div class="bar-fill bar-fill--blue" :style="{ width: autoProgress + '%' }" />
+          </div>
         </div>
-        <div
-          style="height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden;"
-        >
-          <div
-            :style="{
-              width: autoProgress + '%',
-              height: '100%',
-              background: '#3b82f6',
-              transition: 'width 0.2s linear'
-            }"
-          />
+
+        <h2 class="h2">Stats</h2>
+        <ul class="stats">
+          <li>Total Fish: {{ fisher.totalFishAmount }}</li>
+          <li>Base Pull: {{ fisher.baseFishPull }}</li>
+          <li>Luck Rate: {{ fisher.luckRate ?? 0 }}%</li>
+          <li>Luck Multiplier: x{{ fmt(fisher.luckMultiplier) }}</li>
+          <li>Mastery Multiplier: x{{ fmt(fisher.masteryMultiplier) }}</li>
+          <li>Passive Delay: {{ fmt(fisher.passiveFishSpeedMultiplier, 0) }} ms</li>
+          <li>Passive Fish/Tick: {{ fisher.passiveFishPerPull ?? 0 }}</li>
+        </ul>
+
+        <h2 class="h2">Upgrades</h2>
+        <div class="upgrade-grid">
+          <PixelButton
+            v-for="u in upgradeButtons"
+            :key="u.type"
+            size="large"
+            @click="buy(u.type)"
+            :disabled="fisher.fishAmount < costOf(u.type)"
+          >
+            {{ u.label }} (Lv {{ levelOf(u.type) }}) – {{ costOf(u.type) }} Fish
+          </PixelButton>
         </div>
+
+        <p v-if="store.error" class="error">
+          {{ store.error }}
+        </p>
       </div>
-
-      <!-- Navigation buttons -->
-      <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
-        <button
-          @click="router.push(`/`)"
-          style="padding:10px 16px;font-size:16px;border-radius:10px;border:none;background:#22c55e;color:white;"
-        >
-          ⬅ Back
-        </button>
-
-        <button
-          @click="router.push('/leaderboard')"
-          style="padding:10px 16px;font-size:16px;border-radius:10px;border:1px solid #cbd5e1;background:white;"
-        >
-          🏆 Leaderboard
-        </button>
-      </div>
-
-      <h2 style="margin-top:20px;">Stats</h2>
-      <ul>
-        <li>Total Fish: {{fisher.totalFishAmount}}</li>
-        <li>Base Pull: {{ fisher.baseFishPull }}</li>
-        <li>Luck Rate: {{ fisher.luckRate ?? 0 }}%</li>
-        <li>Luck Multiplier: x{{ fmt(fisher.luckMultiplier) }}</li>
-        <li>Mastery Multiplier: x{{ fmt(fisher.masteryMultiplier) }}</li>
-        <li>Passive Delay: {{ fmt(fisher.passiveFishSpeedMultiplier, 0) }} ms</li>
-        <li>Passive Fish/Tick: {{ fisher.passiveFishPerPull ?? 0 }}</li>
-      </ul>
-
-      <h2 style="margin-top:20px;">Upgrades</h2>
-      <div
-        style="
-          display:grid;
-          grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
-          gap:10px;
-        "
-      >
-        <button
-          v-for="u in upgradeButtons"
-          :key="u.type"
-          @click="buy(u.type)"
-          :disabled="fisher.fishAmount < costOf(u.type)"
-          :style="{
-            padding: '10px',
-            borderRadius: '8px',
-            border: '1px solid #cbd5e1',
-            background: 'white',
-            opacity: fisher.fishAmount < costOf(u.type) ? 0.6 : 1,
-            cursor: fisher.fishAmount < costOf(u.type) ? 'not-allowed' : 'pointer'
-          }"
-        >
-          {{ u.label }}
-          (Lv {{ levelOf(u.type) }})
-          – {{ costOf(u.type) }} Fish
-        </button>
-      </div>
-
-      <p v-if="store.error" style="color:red;margin-top:12px;">
-        {{ store.error }}
-      </p>
     </div>
   </main>
 </template>
+
+<style scoped>
+/* Full-screen game layout */
+.game {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+}
+
+/* Scroll INSIDE the game, so you can still reach bottom UI even if body overflow is hidden */
+.content {
+  width: 100%;
+  height: 100%;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+/* A readable panel area (optional) */
+.panel {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.title {
+  margin: 0 0 6px 0;
+}
+
+.fish-count {
+  margin: 0 0 16px 0;
+}
+
+.row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.nav {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.section {
+  margin-top: 16px;
+}
+
+.section-label {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.bar {
+  height: 14px;
+  background: rgba(226, 232, 240, 0.9);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.bar--small {
+  height: 10px;
+}
+
+.bar-fill {
+  height: 100%;
+  width: 0%;
+  background: #22c55e;
+  transition: width 0.2s ease;
+}
+
+.bar-fill--blue {
+  background: #3b82f6;
+  transition: width 0.2s linear;
+}
+
+.h2 {
+  margin-top: 22px;
+  margin-bottom: 10px;
+}
+
+.stats {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.upgrade-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.error {
+  color: red;
+  margin-top: 12px;
+}
+</style>
