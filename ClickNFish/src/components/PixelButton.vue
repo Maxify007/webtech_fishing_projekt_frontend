@@ -1,8 +1,10 @@
 <script setup lang="ts">
 const props = defineProps<{
   disabled?: boolean;
-  size?: "normal" | "large";
+  size?: "small" | "normal" | "large";
+  type?: "button" | "submit" | "reset";
 }>();
+
 </script>
 
 <template>
