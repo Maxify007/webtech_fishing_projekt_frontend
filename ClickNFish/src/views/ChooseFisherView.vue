@@ -2,8 +2,10 @@
 import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { useFisherStore } from "@/stores/fisherStore";
+
 import PixelButton from "@/components/PixelButton.vue";
 import PixelFrame from "@/components/PixelFrame.vue";
+import Board from "@/components/Board.vue";
 
 const store = useFisherStore();
 const router = useRouter();
@@ -11,7 +13,7 @@ const router = useRouter();
 const newName = ref("");
 const creating = ref(false);
 
-const MAX_FISHERS = 3;
+const MAX_FISHERS = 4;
 const canCreateFisher = computed(() => store.fishers.length < MAX_FISHERS);
 
 onMounted(() => {
@@ -35,12 +37,13 @@ async function createFisher() {
   <main class="page">
     <!-- Header -->
     <div class="header">
-      <PixelButton @click="router.push('/leaderboard')">
-        🏆 Leaderboard
-      </PixelButton>
+      <PixelButton @click="router.push('/leaderboard')">🏆 Leaderboard</PixelButton>
     </div>
 
-    <h1 class="h1">Choose your Fisher</h1>
+    <!-- Title Board (uses Board.vue background image) -->
+    <div class="titleWrap">
+      <Board title="Choose your Fisher" :scale="0.22" />
+    </div>
 
     <div v-if="store.loading">Loading...</div>
 
@@ -51,11 +54,7 @@ async function createFisher() {
     <!-- GRID: Fishers + Create Slot -->
     <section class="grid">
       <!-- Existing Fishers -->
-      <PixelFrame
-        v-for="f in store.fishers"
-        :key="f.fisherId"
-        :scale="0.32"
-      >
+      <PixelFrame v-for="f in store.fishers" :key="f.fisherId" :scale="0.32">
         <div class="frameContent">
           <div class="name">{{ f.name }}</div>
           <div class="fish">Fish: {{ f.fishAmount }}</div>
@@ -75,10 +74,7 @@ async function createFisher() {
       </PixelFrame>
 
       <!-- CREATE FISHER SLOT -->
-      <PixelFrame
-        v-if="canCreateFisher"
-        :scale="0.32"
-      >
+      <PixelFrame v-if="canCreateFisher" :scale="0.32">
         <div class="frameContent">
           <div class="name">Create Fisher</div>
 
@@ -116,7 +112,9 @@ async function createFisher() {
   margin-bottom: 16px;
 }
 
-.h1 {
+.titleWrap {
+  display: flex;
+  justify-content: center;
   margin: 0 0 16px 0;
 }
 
@@ -147,7 +145,6 @@ async function createFisher() {
   /* offset */
   transform: translateY(10px);
 }
-
 
 .name {
   font-size: 17px;

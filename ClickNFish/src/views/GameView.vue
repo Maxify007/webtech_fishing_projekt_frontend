@@ -186,7 +186,8 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <h2 class="h2">Stats</h2>
+        <!--
+       <h2 class="h2">Stats</h2>
         <ul class="stats">
           <li>Total Fish: {{ fisher.totalFishAmount }}</li>
           <li>Base Pull: {{ fisher.baseFishPull }}</li>
@@ -196,7 +197,7 @@ onUnmounted(() => {
           <li>Passive Delay: {{ fmt(fisher.passiveFishSpeedMultiplier, 0) }} ms</li>
           <li>Passive Fish/Tick: {{ fisher.passiveFishPerPull ?? 0 }}</li>
         </ul>
-
+        -->
         <h2 class="h2">Upgrades</h2>
         <div class="upgrade-grid">
           <PixelButton
@@ -206,7 +207,7 @@ onUnmounted(() => {
             @click="buy(u.type)"
             :disabled="fisher.fishAmount < costOf(u.type)"
           >
-            {{ u.label }} (Lv {{ levelOf(u.type) }}) – {{ costOf(u.type) }} Fish
+            {{ u.label }} <br> (Lv {{ levelOf(u.type) }}) <br> {{ costOf(u.type) }} Fish
           </PixelButton>
         </div>
 

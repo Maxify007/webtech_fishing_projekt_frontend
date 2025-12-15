@@ -1,22 +1,20 @@
 <script setup lang="ts">
 defineProps<{
-  title?: string;
   scale?: number;
+  variant?: "gold" | "silver" | "bronze";
 }>();
 </script>
 
 <template>
   <section
     class="frame"
+    :class="variant"
     :style="{
       width: 938 * (scale ?? 1) + 'px',
       height: 900 * (scale ?? 1) + 'px'
     }"
   >
     <div class="inner">
-      <h3 v-if="title" class="title">{{ title }}</h3>
-
-      <!-- 👇 this wrapper is the key -->
       <div class="slot">
         <slot />
       </div>
@@ -32,32 +30,35 @@ defineProps<{
   background-size: contain;
 
   image-rendering: pixelated;
-
   display: flex;
   align-items: center;
   justify-content: center;
+
+  transition: filter 0.2s ease;
 }
 
-/* Safe area */
+/* 🥇 GOLD WOOD */
+.frame.gold {
+  filter: sepia(0.9) saturate(1.8) hue-rotate(10deg) brightness(1.05) contrast(1.5);
+}
+
+/* 🥈 SILVER WOOD */
+.frame.silver {
+  filter: grayscale(0.95) brightness(1.4) contrast(1.55);
+}
+
+/* 🥉 BRONZE WOOD */
+.frame.bronze {
+  filter: sepia(0.8) saturate(1.5) hue-rotate(-15deg) brightness(0.95) contrast(1.3);
+}
+
+/* inner area unchanged */
 .inner {
   width: 72%;
-  height: 60%;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  box-sizing: border-box;
+  height: 66%;
 }
 
-/* 👇 fill remaining height so child can center vertically */
 .slot {
-  flex: 1;
-  min-height: 0;
-}
-.title {
-  margin: 0;
-  font-family: "PixelFont", monospace;
-  font-size: 22px;
-  line-height: 1;
+  height: 100%;
 }
 </style>
