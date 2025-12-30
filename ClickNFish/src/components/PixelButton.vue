@@ -62,7 +62,7 @@ const props = defineProps<{
 /* sizes */
 .size-normal {
   padding: 0 22px;
-  height: 85px;
+  height: 100px;
 }
 .size-normal .label {
   font-size: 18px;

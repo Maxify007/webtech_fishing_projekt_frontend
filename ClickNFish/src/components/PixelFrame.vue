@@ -44,12 +44,12 @@ defineProps<{
 
 /* 🥈 SILVER WOOD */
 .frame.silver {
-  filter: grayscale(0.95) brightness(1.4) contrast(1.55);
+  filter: grayscale(0.90) brightness(1.1) contrast(1.35);
 }
 
 /* 🥉 BRONZE WOOD */
 .frame.bronze {
-  filter: sepia(0.8) saturate(1.5) hue-rotate(-15deg) brightness(0.95) contrast(1.3);
+  filter: sepia(0.8) saturate(1.8) hue-rotate(-15deg) brightness(0.95) contrast(1.3);
 }
 
 /* inner area unchanged */

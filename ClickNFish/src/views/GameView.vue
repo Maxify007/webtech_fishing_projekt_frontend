@@ -4,6 +4,7 @@ import { useFisherStore } from "@/stores/fisherStore";
 import { useRouter } from "vue-router";
 import type { Fisher, UpgradeType } from "@/types";
 import PixelButton from "@/components/PixelButton.vue";
+import PixelBar from "@/components/PixelBar.vue";
 
 const router = useRouter();
 
@@ -166,25 +167,28 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <!-- Manual click progress bar -->
+        <!-- Manual progress -->
         <div class="section">
-          <div class="section-label">Progress: {{ fisher.fishProgress }}/10</div>
-          <div class="bar">
-            <div class="bar-fill" :style="{ width: progressPercent + '%' }" />
+          <div class="section-label">
+            Progress: {{ fisher.fishProgress }}/10
           </div>
+          <PixelBar :value="progressPercent" />
         </div>
 
-        <!-- Auto-fish timer + bar -->
+        <!-- Auto-fish -->
         <div class="section">
           <div class="section-label">
             Next auto fish in:
             <span v-if="nextAutoSeconds !== null">{{ nextAutoSeconds }}s</span>
             <span v-else>–</span>
           </div>
-          <div class="bar bar--small">
-            <div class="bar-fill bar-fill--blue" :style="{ width: autoProgress + '%' }" />
-          </div>
+          <PixelBar
+            :value="autoProgress"
+            color="#3b82f6"
+            :height="10"
+          />
         </div>
+
 
         <!--
        <h2 class="h2">Stats</h2>
