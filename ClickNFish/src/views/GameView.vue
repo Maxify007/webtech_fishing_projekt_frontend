@@ -164,6 +164,8 @@ onUnmounted(() => {
           <div class="nav">
             <PixelButton @click="router.push(`/`)">⬅ Back</PixelButton>
             <PixelButton @click="router.push('/leaderboard')">🏆 Leaderboard</PixelButton>
+            <PixelButton @click="router.push(`/stats/${props.fisherId}`)"> Stats </PixelButton>
+
           </div>
         </div>
 
@@ -172,7 +174,14 @@ onUnmounted(() => {
           <div class="section-label">
             Progress: {{ fisher.fishProgress }}/10
           </div>
-          <PixelBar :value="progressPercent" />
+          <PixelBar
+            :value="progressPercent"
+            :width="440"
+            :height="32"
+            :fillAlpha="0.75"
+            fillRgb="34 197 94"
+            :inset="2"
+          />
         </div>
 
         <!-- Auto-fish -->
@@ -182,12 +191,17 @@ onUnmounted(() => {
             <span v-if="nextAutoSeconds !== null">{{ nextAutoSeconds }}s</span>
             <span v-else>–</span>
           </div>
+
           <PixelBar
             :value="autoProgress"
-            color="#3b82f6"
-            :height="10"
+            :width="440"
+            :height="32"
+            fillRgb="59 130 246"
+            :fillAlpha="0.7"
+            :inset="2"
           />
         </div>
+
 
 
         <!--

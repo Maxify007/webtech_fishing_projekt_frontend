@@ -36,7 +36,7 @@ defineProps<{
 
 /* Safe area for text/content */
 .inner {
-  width: 78%;
+  width: 88%;
   height: 70%;
   display: flex;
   flex-direction: column;
