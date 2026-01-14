@@ -1,0 +1,72 @@
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  scrollbar-gutter: stable;
+}
+
+.header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.titleWrap {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 16px 0;
+}
+
+.error {
+  color: red;
+  margin-top: 8px;
+}
+
+/* Unified grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+  margin-top: 12px;
+}
+
+/* Shared centered content */
+.frameContent {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+  text-align: center;
+
+  /* offset */
+  transform: translateY(10px);
+}
+
+.name {
+  font-size: 17px;
+  font-weight: bold;
+}
+
+.fish {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+/* Input inside frame */
+.input {
+  padding: 8px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.25);
+  color: inherit;
+  outline: none;
+  min-width: 180px;
+  text-align: center;
+}
+
+.input:disabled {
+  opacity: 0.6;
+}

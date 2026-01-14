@@ -1,0 +1,38 @@
+<main class="stats-page">
+  <div class="topbar">
+    <PixelButton @click="router.back()">⬅ Back</PixelButton>
+    <PixelButton @click="router.push('/')">🏠 Home</PixelButton>
+  </div>
+
+  <div v-if="isLoading">Loading stats…</div>
+  <div v-else-if="!fisher">Failed to load Fisher.</div>
+
+  <div v-else class="scroll">
+    <!-- Header row -->
+    <div class="header">
+      <img
+        class="fisher-pfp"
+        src="@/assets/fisher_pfp.png"
+        alt="Fisher portrait"
+      />
+
+      <h1 class="title">{{ fisher.name }} — Stats</h1>
+    </div>
+
+    <ul class="stats">
+      <li><b>Total Fish:</b> {{ fisher.totalFishAmount }}</li>
+      <li><b>Fish (current):</b> {{ fisher.fishAmount }}</li>
+      <li><b>Base Pull:</b> {{ fisher.baseFishPull }}</li>
+      <li><b>Luck Rate:</b> {{ fisher.luckRate ?? 0 }}%</li>
+      <li><b>Luck Multiplier:</b> x{{ fmt(fisher.luckMultiplier) }}</li>
+      <li><b>Mastery Multiplier:</b> x{{ fmt(fisher.masteryMultiplier) }}</li>
+      <li><b>Passive Delay:</b>
+        {{ fmt(fisher.passiveFishSpeedMultiplier, 0) }} ms
+      </li>
+      <li><b>Passive Fish/Tick:</b> {{ fisher.passiveFishPerPull ?? 0 }}</li>
+    </ul>
+
+    <p v-if="store.error" class="error">{{ store.error }}</p>
+  </div>
+</main>
+

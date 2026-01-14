@@ -1,0 +1,63 @@
+<main class="page">
+  <!-- Header -->
+  <div class="header">
+    <PixelButton @click="router.push('/leaderboard')">🏆 Leaderboard</PixelButton>
+  </div>
+
+  <!-- Title Board (uses Board.vue background image) -->
+  <div class="titleWrap">
+    <Board title="Choose your Fisher" :scale="0.22" />
+  </div>
+
+  <div v-if="store.loading">Loading...</div>
+
+  <p v-if="store.error" class="error">
+    {{ store.error }}
+  </p>
+
+  <!-- GRID: Fishers + Create Slot -->
+  <section class="grid">
+    <!-- Existing Fishers -->
+    <PixelFrame v-for="f in store.fishers" :key="f.fisherId" :scale="0.32">
+      <div class="frameContent">
+        <div class="name">{{ f.name }}</div>
+        <div class="fish">Fish: {{ f.fishAmount }}</div>
+
+        <PixelButton size="small" @click="router.push(`/game/${f.fisherId}`)">
+          ▶ Play
+        </PixelButton>
+
+        <PixelButton
+          size="small"
+          @click="store.deleteFisher(f.fisherId)"
+          :disabled="store.loading"
+        >
+          🗑 Delete
+        </PixelButton>
+      </div>
+    </PixelFrame>
+
+    <!-- CREATE FISHER SLOT -->
+    <PixelFrame v-if="canCreateFisher" :scale="0.32">
+      <div class="frameContent">
+        <div class="name">Create Fisher</div>
+
+        <input
+          v-model="newName"
+          placeholder="Fisher Name"
+          class="input"
+          :disabled="creating"
+        />
+
+        <PixelButton
+          size="small"
+          :disabled="creating || !newName.trim()"
+          @click="createFisher"
+        >
+          {{ creating ? "Creating..." : "Create" }}
+        </PixelButton>
+      </div>
+    </PixelFrame>
+  </section>
+</main>
+

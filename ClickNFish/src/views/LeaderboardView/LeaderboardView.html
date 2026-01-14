@@ -1,0 +1,30 @@
+<main class="page">
+  <!-- Back -->
+  <div class="topbar">
+    <PixelButton size="small" @click="router.back()">⬅ Back</PixelButton>
+  </div>
+
+  <h1 class="h1">Leaderboard 🏆</h1>
+
+  <div v-if="loading">Loading...</div>
+  <p v-else-if="error" class="error">{{ error }}</p>
+
+  <!-- EXACTLY 2 ROWS × 5 -->
+  <section v-else class="grid">
+    <PixelFrame
+      v-for="(f, index) in top10"
+      :key="f.fisherId"
+      :scale="0.26"
+      :variant="frameVariant(index)"
+    >
+      <div class="frameContent">
+        <div class="rank">#{{ index + 1 }}</div>
+        <div class="name">{{ f.name }}</div>
+        <div class="stat">
+          {{ f.totalFishAmount.toLocaleString() }} Fish
+        </div>
+      </div>
+    </PixelFrame>
+  </section>
+</main>
+

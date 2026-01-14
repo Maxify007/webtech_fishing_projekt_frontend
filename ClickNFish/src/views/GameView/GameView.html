@@ -1,0 +1,73 @@
+<main class="game">
+  <div class="content">
+    <div v-if="isInitialLoading">Loading Fisher...</div>
+
+    <div v-else-if="!fisher">Failed to load Fisher.</div>
+
+    <div v-else class="panel">
+      <h1 class="title">{{ fisher.name }}</h1>
+      <p class="fish-count">Fish: <b>{{ fisher.fishAmount }}</b></p>
+
+      <div class="row">
+        <PixelButton @click="store.click()">🎣 Fish!</PixelButton>
+
+        <div class="nav">
+          <PixelButton @click="router.push(`/`)">⬅ Back</PixelButton>
+          <PixelButton @click="router.push('/leaderboard')">🏆 Leaderboard</PixelButton>
+          <PixelButton @click="router.push(`/stats/${fisherId}`)"> Stats </PixelButton>
+        </div>
+      </div>
+
+      <!-- Manual progress -->
+      <div class="section">
+        <div class="section-label">
+          Progress: {{ fisher.fishProgress }}/10
+        </div>
+        <PixelBar
+          :value="progressPercent"
+          :width="440"
+          :height="32"
+          :fillAlpha="0.75"
+          fillRgb="34 197 94"
+          :inset="2"
+        />
+      </div>
+
+      <!-- Auto-fish -->
+      <div class="section">
+        <div class="section-label">
+          Next auto fish in:
+          <span v-if="nextAutoSeconds !== null">{{ nextAutoSeconds }}s</span>
+          <span v-else>–</span>
+        </div>
+
+        <PixelBar
+          :value="autoProgress"
+          :width="440"
+          :height="32"
+          fillRgb="59 130 246"
+          :fillAlpha="0.7"
+          :inset="2"
+        />
+      </div>
+
+      <h2 class="h2">Upgrades</h2>
+      <div class="upgrade-grid">
+        <PixelButton
+          v-for="u in upgradeButtons"
+          :key="u.type"
+          size="large"
+          @click="buy(u.type)"
+          :disabled="fisher.fishAmount < costOf(u.type)"
+        >
+          {{ u.label }} <br> (Lv {{ levelOf(u.type) }}) <br> {{ costOf(u.type) }} Fish
+        </PixelButton>
+      </div>
+
+      <p v-if="store.error" class="error">
+        {{ store.error }}
+      </p>
+    </div>
+  </div>
+</main>
+
