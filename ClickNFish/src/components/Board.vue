@@ -14,8 +14,8 @@ defineProps<{
     }"
   >
     <div class="inner">
-      <div v-if="title" class="title">{{ title }}</div>
-      <div class="content">
+      <div v-if="title" class="title pixel-font">{{ title }}</div>
+      <div class="content pixel-font">
         <slot />
       </div>
     </div>
@@ -46,7 +46,6 @@ defineProps<{
 
 /* Optional header text */
 .title {
-  font-family: "PixelFont", monospace;
   font-size: 20px;
   line-height: 1;
   text-align: center;
@@ -57,7 +56,6 @@ defineProps<{
   flex: 1;
   min-height: 0;
 
-  font-family: "PixelFont", monospace;
   font-size: 16px;
   line-height: 1.3;
 

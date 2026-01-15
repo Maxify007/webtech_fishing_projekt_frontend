@@ -14,9 +14,9 @@ vi.mock("vue-router", () => ({
   useRouter: () => ({ back: hoisted.backMock }),
 }));
 
-// IMPORTANT: LeaderboardView calls getLeaderboard() from "@/services/api"
-vi.mock("@/services/api", () => ({
-  getLeaderboard: (...args: any[]) => hoisted.getLeaderboardMock(...args),
+// IMPORTANT: LeaderboardView calls getLeaderboard() from the API - use relative path
+vi.mock("../../src/services/api", () => ({
+  getLeaderboard: (...args: unknown[]) => hoisted.getLeaderboardMock(...(args as any[])),
 }));
 
 const stubs = {
@@ -50,12 +50,14 @@ describe("LeaderboardView", () => {
     const backBtn = wrapper.findAll("button").find((b) => b.text().includes("⬅ Back"));
     expect(backBtn).toBeTruthy();
 
-    await backBtn!.trigger("click");
+    if (backBtn) {
+      await backBtn.trigger("click");
+    }
     expect(hoisted.backMock).toHaveBeenCalledTimes(1);
   });
 
   it("shows Loading... while getLeaderboard is pending", async () => {
-    let resolveLeaderboard!: (value: any) => void;
+    let resolveLeaderboard!: (value: unknown) => void;
 
     hoisted.getLeaderboardMock.mockImplementation(
       () =>

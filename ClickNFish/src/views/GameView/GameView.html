@@ -1,5 +1,5 @@
 <main class="game">
-  <div class="content">
+  <div class="content" ref="contentRef">
     <div v-if="isInitialLoading">Loading Fisher...</div>
 
     <div v-else-if="!fisher">Failed to load Fisher.</div>
@@ -68,6 +68,33 @@
         {{ store.error }}
       </p>
     </div>
+
+    <!-- particles overlay -->
+    <div class="particles" ref="particlesRoot">
+      <div
+        v-for="p in particles"
+        :key="p.id"
+        class="particle"
+        :style="{
+          left: p.x + 'px',
+          top: p.y + 'px',
+          opacity: p.opacity,
+          transform: 'translate(-50%,-50%) rotate(' + p.angle + 'deg)'
+        }"
+      >
+        <img
+          v-if="p.src"
+          :src="p.src"
+          class="particle-img"
+          :style="{ width: (p.size ?? p.fontSize) + 'px', height: (p.size ?? p.fontSize) + 'px' }"
+          alt="fish"
+        />
+        <div
+          v-else
+          class="particle-char"
+          :style="{ fontSize: p.fontSize + 'px' }"
+        >{{ p.emoji }}</div>
+      </div>
+    </div>
   </div>
 </main>
-

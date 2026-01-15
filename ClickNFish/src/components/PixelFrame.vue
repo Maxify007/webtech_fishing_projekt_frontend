@@ -15,7 +15,7 @@ defineProps<{
     }"
   >
     <div class="inner">
-      <div class="slot">
+      <div class="slot pixel-font">
         <slot />
       </div>
     </div>

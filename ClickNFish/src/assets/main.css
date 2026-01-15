@@ -35,3 +35,12 @@ select {
   color: inherit;
   cursor: pointer;
 }
+
+/* Shared pixel UI font style (same as PixelButton .label) */
+.pixel-font {
+  font-family: "PixelFont", monospace;
+  line-height: 1;
+  color: #cbd5e1;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+  user-select: none;
+}
