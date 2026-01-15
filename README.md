@@ -12,7 +12,7 @@ Caught fish can be used for currency, which is then used to buy upgrades such as
 
 A Leaderboard gives Players the chance to compete and be the best Fisher!
 
-The project is developed as part of the **HTW WebTech** module and focuses on:
+The project is developed as part of the **HTW WebTech** module.
 
 ---
 
