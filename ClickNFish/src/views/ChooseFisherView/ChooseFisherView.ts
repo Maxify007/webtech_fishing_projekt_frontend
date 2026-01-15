@@ -31,7 +31,9 @@ export default defineComponent({
 
       creating.value = true;
       try {
-        await store.createFisher(newName.value.trim());
+        // enforce max 10 characters defensively
+        const nameToCreate = newName.value.trim().slice(0, 10);
+        await store.createFisher(nameToCreate);
         newName.value = "";
       } finally {
         creating.value = false;

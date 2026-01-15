@@ -20,7 +20,8 @@ export default defineComponent({
       error.value = null;
 
       try {
-        top10.value = await getLeaderboard();
+        top10.value = (await getLeaderboard()).slice(0, 10);
+
       } catch {
         error.value = "Leaderboard konnte nicht geladen werden.";
       } finally {

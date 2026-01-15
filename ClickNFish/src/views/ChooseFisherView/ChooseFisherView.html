@@ -44,14 +44,15 @@
 
         <input
           v-model="newName"
-          placeholder="Fisher Name"
+          placeholder="Fisher Name(Max 10 characters)"
+          maxlength="10"
           class="input"
           :disabled="creating"
         />
 
         <PixelButton
           size="small"
-          :disabled="creating || !newName.trim()"
+          :disabled="creating || !newName.trim() || newName.trim().length > 10"
           @click="createFisher"
         >
           {{ creating ? "Creating..." : "Create" }}
@@ -60,4 +61,3 @@
     </PixelFrame>
   </section>
 </main>
-
