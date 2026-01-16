@@ -6,9 +6,23 @@
 
 :root {
   color-scheme: light;
-  font-family: "PixelFont", monospace;
 }
 
+/* Apply the pixel font and shared pixel-button typography globally */
+body,
+button,
+input,
+textarea,
+select {
+  font-family: "PixelFont", monospace;
+  line-height: 1;
+  color: #cbd5e1;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* page layout and background (unchanged, but no longer overrides text color) */
 html,
 body {
   margin: 0;
@@ -23,10 +37,9 @@ body {
   background-repeat: no-repeat;
 
   image-rendering: pixelated;
-  color: #ffffff;
 }
 
-/* force inheritance */
+/* force inheritance for controls (still useful) */
 button,
 input,
 textarea,

@@ -55,3 +55,8 @@
   font-size: 14px;
   opacity: 0.9;
 }
+.scaled {
+  image-rendering: pixelated;
+  width: 100%;
+  height: auto;
+}
