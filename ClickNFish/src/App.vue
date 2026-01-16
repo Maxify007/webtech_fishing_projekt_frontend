@@ -15,7 +15,7 @@ function updateScale() {
   scale = Math.min(scale, 1);
 
   // don't let it get ridiculously small (tweak this)
-  scale = Math.max(scale, 0.95);
+  scale = Math.max(scale, 0.85);
 
   const app = document.getElementById("app");
   if (!app) return;
