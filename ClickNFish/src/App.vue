@@ -7,7 +7,6 @@ const baseHeight = 1080;
 function updateScale() {
   const scaleX = window.innerWidth / baseWidth;
   const scaleY = window.innerHeight / baseHeight;
-
   // pick the limiting dimension
   let scale = Math.min(scaleX, scaleY);
 
